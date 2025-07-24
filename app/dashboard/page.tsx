@@ -7,9 +7,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, Plus, Search, Clock, MapPin, ShoppingBag, Store, Zap } from "lucide-react"
+import {
+  Users,
+  Plus,
+  Search,
+  Clock,
+  MapPin,
+  ShoppingBag,
+  Store,
+  Zap,
+  Heart,
+  BookOpen,
+  MessageCircle,
+} from "lucide-react"
+import { ChatSystem } from "@/components/chat-system"
+import { WishlistSystem } from "@/components/wishlist-system"
+import { AcademicIntegration } from "@/components/academic-integration"
 
-// Datos de ejemplo
+// Datos de ejemplo expandidos
 const products = [
   {
     id: 1,
@@ -17,10 +32,14 @@ const products = [
     price: 25,
     category: "comida",
     seller: "María González",
+    sellerId: "seller1",
     time: "Hace 5 min",
     location: "Facultad de Ingeniería",
     image: "/placeholder.svg?height=200&width=200",
     isLimited: false,
+    rating: 4.8,
+    totalRatings: 23,
+    badges: ["Vendedor Confiable", "Entrega Rápida"],
   },
   {
     id: 2,
@@ -28,10 +47,14 @@ const products = [
     price: 18000,
     category: "accesorios",
     seller: "Carlos Ruiz",
+    sellerId: "seller2",
     time: "Hace 15 min",
     location: "Biblioteca Central",
     image: "/placeholder.svg?height=200&width=200",
     isLimited: true,
+    rating: 4.9,
+    totalRatings: 45,
+    badges: ["Top Vendedor", "Excelente Servicio"],
   },
   {
     id: 3,
@@ -39,21 +62,52 @@ const products = [
     price: 3500,
     category: "inmuebles",
     seller: "Ana López",
+    sellerId: "seller3",
     time: "Hace 30 min",
     location: "Zona Universitaria",
     image: "/placeholder.svg?height=200&width=200",
     isLimited: false,
+    rating: 4.6,
+    totalRatings: 12,
+    badges: ["Vendedor Confiable"],
   },
   {
     id: 4,
-    title: "Mochila Jansport Original",
+    title: "Tutoría de Matemáticas - Cálculo I y II",
+    price: 15,
+    category: "servicios",
+    seller: "Andrea Morales",
+    sellerId: "seller4",
+    time: "Hace 2 horas",
+    location: "Biblioteca Central",
+    image: "/placeholder.svg?height=200&width=200",
+    isLimited: false,
+    rating: 4.9,
+    totalRatings: 67,
+    badges: ["Excelente Servicio", "Top Vendedor"],
+  },
+]
+
+const wishlistItems = [
+  {
+    id: "w1",
+    title: "iPhone 13 Pro Max",
     price: 800,
     category: "accesorios",
-    seller: "Luis Martín",
-    time: "Hace 1 hora",
-    location: "Cafetería Principal",
     image: "/placeholder.svg?height=200&width=200",
-    isLimited: true,
+    seller: "Pedro Martín",
+    isAvailable: true,
+    priceDropped: true,
+  },
+  {
+    id: "w2",
+    title: "Clases de Inglés",
+    price: 20,
+    category: "servicios",
+    image: "/placeholder.svg?height=200&width=200",
+    seller: "Sarah Johnson",
+    isAvailable: true,
+    priceDropped: false,
   },
 ]
 
@@ -62,6 +116,8 @@ const limitedOffers = products.filter((p) => p.isLimited)
 export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [showChat, setShowChat] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<any>(null)
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -77,9 +133,24 @@ export default function DashboardPage() {
         return "🎒"
       case "inmuebles":
         return "🏠"
+      case "servicios":
+        return "💼"
       default:
         return "📦"
     }
+  }
+
+  const handleContactSeller = (product: any) => {
+    setSelectedProduct(product)
+    setShowChat(true)
+  }
+
+  const handleRemoveFromWishlist = (id: string) => {
+    console.log("Removing from wishlist:", id)
+  }
+
+  const handleCreateWishlist = (name: string) => {
+    console.log("Creating wishlist:", name)
   }
 
   return (
@@ -89,10 +160,10 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
                 <Users className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold">UniMarket</span>
+              <span className="text-xl font-bold">EcoVentas</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/sell">
@@ -109,7 +180,7 @@ export default function DashboardPage() {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="marketplace" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="marketplace">
               <ShoppingBag className="w-4 h-4 mr-2" />
               Marketplace
@@ -117,6 +188,14 @@ export default function DashboardPage() {
             <TabsTrigger value="limited">
               <Zap className="w-4 h-4 mr-2" />
               Ofertas Limitadas
+            </TabsTrigger>
+            <TabsTrigger value="wishlist">
+              <Heart className="w-4 h-4 mr-2" />
+              Lista de Deseos
+            </TabsTrigger>
+            <TabsTrigger value="academic">
+              <BookOpen className="w-4 h-4 mr-2" />
+              Académico
             </TabsTrigger>
             <TabsTrigger value="my-products">
               <Store className="w-4 h-4 mr-2" />
@@ -163,6 +242,12 @@ export default function DashboardPage() {
                     >
                       🏠 Inmuebles
                     </Button>
+                    <Button
+                      variant={selectedCategory === "servicios" ? "default" : "outline"}
+                      onClick={() => setSelectedCategory("servicios")}
+                    >
+                      💼 Servicios
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -187,6 +272,9 @@ export default function DashboardPage() {
                     <div className="absolute top-2 left-2">
                       <Badge variant="secondary">{getCategoryIcon(product.category)}</Badge>
                     </div>
+                    <Button variant="ghost" size="sm" className="absolute bottom-2 right-2 bg-white/80 hover:bg-white">
+                      <Heart className="w-4 h-4" />
+                    </Button>
                   </div>
                   <CardHeader>
                     <CardTitle className="text-lg">{product.title}</CardTitle>
@@ -202,14 +290,27 @@ export default function DashboardPage() {
                         <MapPin className="w-4 h-4 mr-1" />
                         {product.location}
                       </div>
-                      <div className="text-sm">
-                        Vendedor: <span className="font-medium">{product.seller}</span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">
+                          Vendedor: <span className="font-medium">{product.seller}</span>
+                        </span>
+                        <div className="flex items-center space-x-1">
+                          <span className="text-xs">⭐ {product.rating}</span>
+                          <span className="text-xs text-gray-400">({product.totalRatings})</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {product.badges.map((badge, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {badge}
+                          </Badge>
+                        ))}
                       </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">
-                      <ShoppingBag className="w-4 h-4 mr-2" />
+                    <Button className="w-full" onClick={() => handleContactSeller(product)}>
+                      <MessageCircle className="w-4 h-4 mr-2" />
                       Contactar Vendedor
                     </Button>
                   </CardContent>
@@ -269,6 +370,18 @@ export default function DashboardPage() {
             </div>
           </TabsContent>
 
+          <TabsContent value="wishlist" className="space-y-6">
+            <WishlistSystem
+              items={wishlistItems}
+              onRemoveItem={handleRemoveFromWishlist}
+              onCreateList={handleCreateWishlist}
+            />
+          </TabsContent>
+
+          <TabsContent value="academic" className="space-y-6">
+            <AcademicIntegration />
+          </TabsContent>
+
           <TabsContent value="my-products" className="space-y-6">
             <Card>
               <CardHeader>
@@ -291,6 +404,19 @@ export default function DashboardPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Chat System */}
+      {showChat && selectedProduct && (
+        <ChatSystem
+          productId={selectedProduct.id.toString()}
+          sellerId={selectedProduct.sellerId}
+          sellerName={selectedProduct.seller}
+          buyerId="current-user"
+          buyerName="Usuario Actual"
+          productTitle={selectedProduct.title}
+          onClose={() => setShowChat(false)}
+        />
+      )}
     </div>
   )
 }

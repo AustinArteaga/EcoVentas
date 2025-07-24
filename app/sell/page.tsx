@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Users, Upload, ArrowLeft, Zap } from "lucide-react"
+import { ServiceFormFields } from "@/components/service-form-fields"
 
 export default function SellPage() {
   const [formData, setFormData] = useState({
@@ -23,6 +24,12 @@ export default function SellPage() {
     condition: "",
     isLimitedOffer: false,
     images: [],
+    // Campos específicos para servicios
+    serviceType: "",
+    duration: "",
+    experience: "",
+    availability: "",
+    deliveryMethod: "",
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,10 +54,10 @@ export default function SellPage() {
                 </Button>
               </Link>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
                   <Users className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">UniMarket</span>
+                <span className="text-xl font-bold">EcoVentas</span>
               </div>
             </div>
           </div>
@@ -74,7 +81,7 @@ export default function SellPage() {
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Ej: iPhone 13 Pro Max - Excelente Estado"
+                  placeholder="Ej: iPhone 13 Pro Max - Excelente Estado / Tutoría de Matemáticas"
                   required
                 />
               </div>
@@ -95,7 +102,7 @@ export default function SellPage() {
               {/* Precio y Categoría */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Precio (MXN) *</Label>
+                  <Label htmlFor="price">Precio (USD) *</Label>
                   <Input
                     id="price"
                     type="number"
@@ -115,6 +122,7 @@ export default function SellPage() {
                       <SelectItem value="comida">🍕 Comida</SelectItem>
                       <SelectItem value="accesorios">🎒 Accesorios</SelectItem>
                       <SelectItem value="inmuebles">🏠 Inmuebles</SelectItem>
+                      <SelectItem value="servicios">💼 Servicios</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -132,21 +140,26 @@ export default function SellPage() {
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Estado del Producto</Label>
-                  <Select onValueChange={(value) => setFormData({ ...formData, condition: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona el estado" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="nuevo">Nuevo</SelectItem>
-                      <SelectItem value="como-nuevo">Como Nuevo</SelectItem>
-                      <SelectItem value="buen-estado">Buen Estado</SelectItem>
-                      <SelectItem value="usado">Usado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {formData.category !== "servicios" && (
+                  <div className="space-y-2">
+                    <Label>Estado del Producto</Label>
+                    <Select onValueChange={(value) => setFormData({ ...formData, condition: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona el estado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="nuevo">Nuevo</SelectItem>
+                        <SelectItem value="como-nuevo">Como Nuevo</SelectItem>
+                        <SelectItem value="buen-estado">Buen Estado</SelectItem>
+                        <SelectItem value="usado">Usado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
+
+              {/* Campos específicos para servicios */}
+              <ServiceFormFields category={formData.category} formData={formData} setFormData={setFormData} />
 
               {/* Imágenes */}
               <div className="space-y-2">

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { PhoneInput } from "@/components/phone-input"
 import { Users, ShoppingBag, Store } from "lucide-react"
 
 export default function RegisterPage() {
@@ -18,37 +19,57 @@ export default function RegisterPage() {
   const initialType = searchParams.get("type") || "buyer"
 
   const [userType, setUserType] = useState(initialType)
+  const [emailError, setEmailError] = useState("")
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     studentId: "",
-    university: "",
     career: "",
     semester: "",
-    phone: "",
+    celular: "",
   })
+
+  const validateEmail = (email: string) => {
+    if (!email.endsWith("@est.ecotec.edu.ec")) {
+      setEmailError("Debes usar tu correo institucional de ECOTEC (@est.ecotec.edu.ec)")
+      return false
+    }
+    setEmailError("")
+    return true
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value
+    setFormData({ ...formData, email })
+    if (email) {
+      validateEmail(email)
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Aquí iría la lógica de registro
+
+    if (!validateEmail(formData.email)) {
+      return
+    }
+
     console.log("Registro:", { ...formData, userType })
-    // Redirigir al dashboard después del registro exitoso
     window.location.href = "/dashboard"
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
               <Users className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold">UniMarket</span>
+            <span className="text-xl font-bold text-green-800">EcoVentas</span>
           </div>
           <CardTitle className="text-2xl">Crear Cuenta</CardTitle>
-          <CardDescription>Únete a la comunidad estudiantil</CardDescription>
+          <CardDescription>Únete a la comunidad estudiantil de ECOTEC</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,7 +100,7 @@ export default function RegisterPage() {
 
             {/* Información Personal */}
             <div className="space-y-2">
-              <Label htmlFor="name">Nombre Completo</Label>
+              <Label htmlFor="name">Nombre Completo *</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -89,19 +110,21 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Institucional</Label>
+              <Label htmlFor="email">Email Institucional ECOTEC *</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="tu.email@universidad.edu"
+                onChange={handleEmailChange}
+                placeholder="tu.nombre@est.ecotec.edu.ec"
+                className={emailError ? "border-red-500" : ""}
                 required
               />
+              {emailError && <p className="text-sm text-red-600">{emailError}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">Contraseña *</Label>
               <Input
                 id="password"
                 type="password"
@@ -113,60 +136,64 @@ export default function RegisterPage() {
 
             {/* Información Académica */}
             <div className="space-y-2">
-              <Label htmlFor="studentId">Número de Estudiante</Label>
+              <Label htmlFor="studentId">Número de Estudiante *</Label>
               <Input
                 id="studentId"
                 value={formData.studentId}
                 onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                placeholder="Ej: 2024001234"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="university">Universidad</Label>
-              <Select onValueChange={(value) => setFormData({ ...formData, university: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona tu universidad" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unam">Universidad Nacional Autónoma de México</SelectItem>
-                  <SelectItem value="ipn">Instituto Politécnico Nacional</SelectItem>
-                  <SelectItem value="itesm">Tecnológico de Monterrey</SelectItem>
-                  <SelectItem value="uam">Universidad Autónoma Metropolitana</SelectItem>
-                  <SelectItem value="other">Otra</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="career">Carrera</Label>
+              <Label htmlFor="career">Carrera *</Label>
               <Input
                 id="career"
                 value={formData.career}
                 onChange={(e) => setFormData({ ...formData, career: e.target.value })}
+                placeholder="Ej: Ingeniería en Sistemas"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Teléfono (opcional)</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
+              <Label htmlFor="semester">Semestre</Label>
+              <Select onValueChange={(value) => setFormData({ ...formData, semester: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona tu semestre" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1er Semestre</SelectItem>
+                  <SelectItem value="2">2do Semestre</SelectItem>
+                  <SelectItem value="3">3er Semestre</SelectItem>
+                  <SelectItem value="4">4to Semestre</SelectItem>
+                  <SelectItem value="5">5to Semestre</SelectItem>
+                  <SelectItem value="6">6to Semestre</SelectItem>
+                  <SelectItem value="7">7mo Semestre</SelectItem>
+                  <SelectItem value="8">8vo Semestre</SelectItem>
+                  <SelectItem value="9">9no Semestre</SelectItem>
+                  <SelectItem value="10">10mo Semestre</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Número Celular */}
+            <PhoneInput
+              value={formData.celular}
+              onChange={(value) => setFormData({ ...formData, celular: value })}
+              required
+            />
 
             {/* Términos y Condiciones */}
             <div className="flex items-center space-x-2">
               <Checkbox id="terms" required />
               <Label htmlFor="terms" className="text-sm">
-                Acepto los términos y condiciones
+                Acepto los términos y condiciones de EcoVentas
               </Label>
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">
               Crear Cuenta
             </Button>
           </form>
@@ -174,7 +201,7 @@ export default function RegisterPage() {
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-600">
               ¿Ya tienes cuenta?{" "}
-              <Link href="/login" className="text-blue-600 hover:underline">
+              <Link href="/login" className="text-green-600 hover:underline">
                 Iniciar Sesión
               </Link>
             </p>
